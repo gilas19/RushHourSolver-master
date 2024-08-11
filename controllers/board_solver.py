@@ -1,6 +1,5 @@
 import threading
 from copy import deepcopy
-from enum import Enum
 from util import Direction, Orientation
 import util
 

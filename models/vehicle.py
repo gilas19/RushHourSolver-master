@@ -1,8 +1,8 @@
 from util import Orientation
 
 
-class Vehicle(object):
-    """Vehicle class."""
+class Vehicle:
+    """Represents a vehicle on the Rush Hour game board."""
 
     VEHICLE_COLORS = {
         "X": "red",
@@ -24,90 +24,77 @@ class Vehicle(object):
     }
 
     def __init__(self, name, type):
+        """Initialize a vehicle with a name and type."""
         self.name = name
-        self.start = {}
-        self.end = {}
         self.type = type  # main, vehicle, broken_down
-        self.occupied_locations = []
+        self.start = {"x": None, "y": None}
+        self.end = {"x": None, "y": None}
         self.color = self.VEHICLE_COLORS.get(name, "black")
+        self.occupied_locations = []
 
     def set_start_location(self, x, y):
-        """Set start location of the object."""
-        self.start["x"] = x
-        self.start["y"] = y
+        """Set the start location of the vehicle."""
+        self.start = {"x": x, "y": y}
 
     def get_start_location(self):
-        """Get start location of the object."""
+        """Return the start location of the vehicle."""
         return self.start
 
     def set_end_location(self, x, y):
-        """Set end location of the object."""
-        self.end["x"] = x
-        self.end["y"] = y
+        """Set the end location of the vehicle."""
+        self.end = {"x": x, "y": y}
 
     def get_end_location(self):
-        """Get end location of the object."""
+        """Return the end location of the vehicle."""
         return self.end
 
     def get_occupied_locations(self):
-        """Get the locations that are being occupied by the objects."""
-        occupied_locations = []
+        """Calculate and return the list of locations occupied by the vehicle."""
+        self.occupied_locations = []
 
         if self.get_orientation() == Orientation.HORIZONTAL:
-            delta = self.end["x"] - self.start["x"]
-            for index in range(0, delta + 1):
-                location = {"x": self.start["x"] + index, "y": self.start["y"]}
-                occupied_locations.append(location)
+            self.occupied_locations = [{"x": self.start["x"] + i, "y": self.start["y"]} for i in range(self.end["x"] - self.start["x"] + 1)]
+        elif self.get_orientation() == Orientation.VERTICAL:
+            self.occupied_locations = [{"x": self.start["x"], "y": self.start["y"] + i} for i in range(self.end["y"] - self.start["y"] + 1)]
 
-        if self.get_orientation() == Orientation.VERTICAL:
-            delta = self.end["y"] - self.start["y"]
-            for index in range(0, delta + 1):
-                location = {"x": self.start["x"], "y": self.start["y"] + index}
-                occupied_locations.append(location)
-
-        self.occupied_locations = occupied_locations
-        return occupied_locations
-
-    def set_name(self, name):
-        """Set name of the object."""
-        self.name = name
+        return self.occupied_locations
 
     def get_name(self):
-        """Get name of the object."""
+        """Return the name of the vehicle."""
         return self.name
 
     def is_main_vehicle(self):
-        """Check if the object is the main vehicle (Red Car)"""
+        """Check if the vehicle is the main (red car) vehicle."""
         return self.type == "main"
 
     def get_orientation(self):
-        """Get the orientation of the object."""
+        """Determine and return the orientation of the vehicle."""
         if self.start["x"] == self.end["x"]:
             return Orientation.VERTICAL
-
-        if self.start["y"] == self.end["y"]:
+        elif self.start["y"] == self.end["y"]:
             return Orientation.HORIZONTAL
+        else:
+            raise ValueError("Invalid vehicle position: Start and end points do not align horizontally or vertically.")
 
     def move_forward(self):
-        """Move the object a space forward."""
+        """Move the vehicle one step forward."""
         if self.get_orientation() == Orientation.HORIZONTAL:
             self.start["x"] += 1
             self.end["x"] += 1
-
-        if self.get_orientation() == Orientation.VERTICAL:
+        elif self.get_orientation() == Orientation.VERTICAL:
             self.start["y"] += 1
             self.end["y"] += 1
 
     def move_backward(self):
-        """Move the object a space backward."""
+        """Move the vehicle one step backward."""
         if self.get_orientation() == Orientation.HORIZONTAL:
             self.start["x"] -= 1
             self.end["x"] -= 1
-
-        if self.get_orientation() == Orientation.VERTICAL:
+        elif self.get_orientation() == Orientation.VERTICAL:
             self.start["y"] -= 1
             self.end["y"] -= 1
 
     def __repr__(self):
-        # return "%s - %s - %s" % (self.name, self.start, self.end)
+        """Return a string representation of the vehicle."""
+        # return f"{self.name} - {self.start} to {self.end}"
         return self.name

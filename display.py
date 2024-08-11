@@ -7,9 +7,19 @@ import matplotlib.animation as animation
 
 
 class GUIView:
-    """GUI View class."""
+    """Graphical User Interface (GUI) View for visualizing the game board and moves."""
 
-    def plot_board(self, grid, ax, moves_count=None, num_moves=None, possible_moves=None):
+    def plot_board(self, grid, ax, move_index=None, total_moves=None, possible_moves=None):
+        """Render the current state of the board, including vehicle positions and possible moves.
+
+        Args:
+            grid (list of lists): 2D list representing the game board.
+            ax (matplotlib.axes.Axes): Matplotlib axes object to draw the board on.
+            move_index (int, optional): The index of the current move. Defaults to None.
+            total_moves (int, optional): The total number of moves in the solution. Defaults to None.
+            possible_moves (list of tuples, optional): List of possible moves. Each move is a tuple
+                                                       containing vehicle information and direction. Defaults to None.
+        """
         ax.clear()
         ax.set_xlim(0, len(grid[0]))
         ax.set_ylim(0, len(grid))
@@ -23,63 +33,78 @@ class GUIView:
         # Draw the board and vehicles
         for i, row in enumerate(grid):
             for j, cell in enumerate(row):
-                if cell == 0:
-                    color = "white"
-                else:
-                    if cell.type == "broken_down":
-                        color = "black"
-                    else:
-                        color = cell.color
+                color = "white" if cell == 0 else cell.color if cell.type != "broken_down" else "black"
                 ax.add_patch(patches.Rectangle((i, j), 1, 1, edgecolor="black", facecolor=color))
 
-        # Draw arrows for possible moves
+        # Draw arrows indicating possible moves
         if possible_moves:
             for state in possible_moves:
-                vehicle = state[0][0][0]
-                direction = state[0][0][1]
+                vehicle, direction = state[0][0]
                 orientation = vehicle.get_orientation()
                 x_start, y_start = vehicle.start.values()
                 x_end, y_end = vehicle.end.values()
+
                 if orientation == Orientation.HORIZONTAL:
                     if direction == Direction.FORWARD:
                         arrow = patches.Arrow(x_end + 0.5, y_end + 0.5, 1, 0, facecolor="red", edgecolor="red")
-                    if direction == Direction.BACKWARD:
+                    elif direction == Direction.BACKWARD:
                         arrow = patches.Arrow(x_start + 0.5, y_start + 0.5, -1, 0, facecolor="red", edgecolor="red")
-                if orientation == Orientation.VERTICAL:
+
+                elif orientation == Orientation.VERTICAL:
                     if direction == Direction.FORWARD:
                         arrow = patches.Arrow(x_end + 0.5, y_end + 0.5, 0, 1, facecolor="red", edgecolor="red")
-                    if direction == Direction.BACKWARD:
+                    elif direction == Direction.BACKWARD:
                         arrow = patches.Arrow(x_start + 0.5, y_start + 0.5, 0, -1, facecolor="red", edgecolor="red")
+
                 ax.add_patch(arrow)
 
-        if i and moves_count:
-            ax.text(0.5, 1.05, f"Move: {moves_count}/{num_moves}", transform=ax.transAxes, ha="center")
+        # Display move count if provided
+        if move_index is not None and total_moves is not None:
+            ax.text(0.5, 1.05, f"Move: {move_index}/{total_moves}", transform=ax.transAxes, ha="center")
 
     def show_solution(self, board, grids, possible_moves=None):
+        """Animate the solution, displaying the sequence of moves on the board.
+
+        Args:
+            board: The game board instance.
+            grids (list of lists): Sequence of grid states representing each move.
+            possible_moves (list of tuples, optional): Possible moves for each grid state. Defaults to None.
+        """
         fig, ax = plt.subplots()
 
         def animate(i):
-            self.plot_board(grids[i], ax, i, len(grids) - 1, possible_moves[i])
+            self.plot_board(grids[i], ax, move_index=i, total_moves=len(grids) - 1, possible_moves=possible_moves[i])
             return ax
 
         ani = animation.FuncAnimation(fig, animate, frames=len(grids), interval=400)
         plt.show()
         plt.clf()
 
-    def show_board(self, board, possible_moves):
+    def show_board(self, board, possible_moves=None):
+        """Display the current state of the board without animation.
+
+        Args:
+            board: The game board instance.
+            possible_moves (list of tuples, optional): Possible moves for the current board state. Defaults to None.
+        """
         fig, ax = plt.subplots()
         grid = board.get_grid()
         self.plot_board(grid, ax, possible_moves=possible_moves)
         plt.show()
         plt.clf()
 
-    def show_statistics(self, time_delta, expanded_nodes, amount_moves="--"):
-        print("\n")
-        print("\n")
-        print("Statistics: \n")
-        print("Amount of Moves: %s \n" % amount_moves)
-        print("Time Passed: %.3f seconds\n" % time_delta)
-        print("Expanded Nodes: %s\n" % expanded_nodes)
+    def show_statistics(self, time_delta, expanded_nodes, num_moves="--"):
+        """Display statistical information after the solution is computed.
+
+        Args:
+            time_delta (float): Time taken to compute the solution.
+            expanded_nodes (int): Number of nodes expanded during the search.
+            num_moves (int or str, optional): Number of moves in the solution. Defaults to "--".
+        """
+        print("\n\nStatistics:\n")
+        print(f"Amount of Moves: {num_moves}\n")
+        print(f"Time Passed: {time_delta:.3f} seconds\n")
+        print(f"Expanded Nodes: {expanded_nodes}\n")
 
 
 class ConsoleView(object):
