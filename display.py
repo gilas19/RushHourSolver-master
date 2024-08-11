@@ -9,12 +9,14 @@ import matplotlib.animation as animation
 class GUIView:
     """GUI View class."""
 
-    def plot_board(self, grid, ax, i=None, moves_count=None, possible_moves=None):
+    def plot_board(self, grid, ax, moves_count=None, num_moves=None, possible_moves=None):
         ax.clear()
         ax.set_xlim(0, len(grid[0]))
         ax.set_ylim(0, len(grid))
-        ax.set_xticks(range(len(grid[0]) + 1))
-        ax.set_yticks(range(len(grid) + 1))
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
         ax.grid(True)
         ax.invert_yaxis()
 
@@ -51,13 +53,13 @@ class GUIView:
                 ax.add_patch(arrow)
 
         if i and moves_count:
-            ax.text(0.5, 1.05, f"Move: {i + 1}/{moves_count}", transform=ax.transAxes, ha="center")
+            ax.text(0.5, 1.05, f"Move: {moves_count}/{num_moves}", transform=ax.transAxes, ha="center")
 
     def show_solution(self, board, grids, possible_moves=None):
         fig, ax = plt.subplots()
 
         def animate(i):
-            self.plot_board(grids[i], ax, i, len(grids), possible_moves[i])
+            self.plot_board(grids[i], ax, i, len(grids) - 1, possible_moves[i])
             return ax
 
         ani = animation.FuncAnimation(fig, animate, frames=len(grids), interval=400)

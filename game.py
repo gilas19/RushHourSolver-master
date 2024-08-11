@@ -60,7 +60,7 @@ def main():
                 
     """
     parser = OptionParser(usage_str)
-    parser.add_option("-b", "--board", dest="board_file", default="beginner", help="board file name")
+    parser.add_option("-b", "--board", dest="board_file", default="advance", help="board file name")
     parser.add_option("-d", "--display", dest="display", default="gui", help="display type (gui or console)")
     parser.add_option("-f", "--algorithm", dest="algorithm", default="a_star", help="search algorithm")
     parser.add_option("--heuristic", dest="heuristic", default="blockingHeuristic", help="heuristic function")
