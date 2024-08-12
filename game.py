@@ -23,7 +23,6 @@ class RushHourGame:
         # Solve the game board using the selected algorithm
         start_time = time.perf_counter()
         solver = BoardSolver(board)
-
         solution = self.solve_board(solver)
         end_time = time.perf_counter()
         time_delta = end_time - start_time
